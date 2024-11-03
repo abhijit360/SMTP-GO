@@ -4,6 +4,7 @@ This project is to better my understanding of protocols used for internet commun
 
 SMTP documentation:
 - https://www.rfc-editor.org/rfc/rfc821.txt
+- https://mailtrap.io/blog/smtp/
 
 Testing documentation:
 - https://stackoverflow.com/questions/34653875/python-how-to-send-data-over-tcp

@@ -65,10 +65,19 @@ func handleMailConnection(conn net.Conn){
 		// clear all the storage etc and return a 250 ok		
 		conn.Write(formatMessage(connectionCodes["STATUS_OK"],"Ready to get email!"))
 	case "mail":
-		domain := split_strings[1]
+		domain := strings.Split(split_strings[1],":")[1]
 		currentEmail.from = string(domain)
 
 		conn.Write(formatMessage(connectionCodes["STATUS_OK"],"ok"))
+	case "rcpt":
+		domain := strings.Split(split_strings[1],":")[1]
+		if isAllowedDomain(domain) {
+			currentEmail.from = domain
+			conn.Write(formatMessage(connectionCodes["STATUS_OK"], "ok"))
+		} else {
+			conn.Write(formatMessage(connectionCodes["REQUESTED_ACTION_NOT_TAKEN"], "Invalid sender email format"))
+			return
+		}
 	case "data":
 		reader := bufio.NewReader(conn)
 		for {
@@ -85,3 +94,8 @@ func handleMailConnection(conn net.Conn){
 	}
 
 }	
+
+func isAllowedDomain(email string) bool {
+    // Replace "yourdomain.com" with your actual domain or an array of allowed domains
+    return strings.HasSuffix(email, "@ablaut.com")
+}
