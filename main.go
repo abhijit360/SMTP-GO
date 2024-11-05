@@ -3,9 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"net"
-	"strings"
 	"io"
+	"net"
+	"os"
+	"strings"
+	"time"
+	"errors"
 )
 
 var connectionCodes = map[string]int{
@@ -48,17 +51,24 @@ func formatMessage(status_code int , message string) []byte {
 }
 
 func handleMailConnection(conn net.Conn){
+	conn.SetReadDeadline(time.Now().Add(time.Minute))
 	fmt.Printf("connecting from: %v\n",conn.RemoteAddr())
+	currentEmail := email{"","",""}
 	buffer := make([]byte,1024)
 	_ , err := conn.Read(buffer)
 	if err != nil {
+		if errors.Is(err, os.ErrDeadlineExceeded){
+			fmt.Println("Timed out")
+			currentEmail = email{"","",""}
+			conn.Close()
+			return
+		}
 		fmt.Println("Error reading from connection:",err)
 		return
 	}
 	split_strings := strings.Split(string(buffer)," ")
 	cmd := strings.ToLower(split_strings[0])
 	
-	currentEmail := email{"","",""}
 
 	switch(cmd){
 	case "helo":
