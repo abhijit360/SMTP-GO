@@ -64,6 +64,16 @@ func handleMailConnection(conn net.Conn){
 	case "helo":
 		// clear all the storage etc and return a 250 ok		
 		conn.Write(formatMessage(connectionCodes["STATUS_OK"],"Ready to get email!"))
+	case "quit":
+		conn.Write(formatMessage(connectionCodes["STATUS_OK"], "ok"))
+		conn.Close()
+		return
+	case "rset":
+		// clear the state
+		currentEmail = email{"", "",""}
+		conn.Write(formatMessage(connectionCodes["STATUS_OK"], "ok"))
+	case "noop":
+		conn.Write(formatMessage(connectionCodes["STATUS_OK"], "ok"))
 	case "mail":
 		domain := strings.Split(split_strings[1],":")[1]
 		currentEmail.from = string(domain)
@@ -96,6 +106,5 @@ func handleMailConnection(conn net.Conn){
 }	
 
 func isAllowedDomain(email string) bool {
-    // Replace "yourdomain.com" with your actual domain or an array of allowed domains
     return strings.HasSuffix(email, "@ablaut.com")
 }
